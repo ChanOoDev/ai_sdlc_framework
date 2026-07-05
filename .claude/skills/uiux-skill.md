@@ -191,6 +191,7 @@ When reviewing UI/UX:
 
 When implementing UI:
 1. Follow the component patterns above
+
 2. Use existing Tailwind classes, don't invent new ones
 3. Match the style of existing pages
 4. Include all feedback states (loading, empty, error)
