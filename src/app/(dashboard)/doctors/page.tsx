@@ -2,8 +2,21 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { getDoctors, deleteDoctor } from "@/app/actions/doctors";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import PageHeader from "../components/PageHeader";
+import PageLoading from "../components/PageLoading";
+import PageError from "../components/PageError";
+import PageEmpty from "../components/PageEmpty";
 
 interface Doctor {
   id: string;
@@ -14,7 +27,6 @@ interface Doctor {
 }
 
 export default function DoctorsPage() {
-  const router = useRouter();
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,16 +35,13 @@ export default function DoctorsPage() {
   const fetchDoctors = useCallback(async () => {
     setLoading(true);
     setError(null);
-
     const result = await getDoctors();
-
     if (result.error) {
       setError(result.error);
       setDoctors([]);
     } else {
       setDoctors(result.data ?? []);
     }
-
     setLoading(false);
   }, []);
 
@@ -41,118 +50,88 @@ export default function DoctorsPage() {
   }, [fetchDoctors]);
 
   async function handleDelete(id: string, name: string) {
-    if (!window.confirm(`Are you sure you want to delete Dr. ${name}?`)) {
-      return;
-    }
-
+    if (!window.confirm(`Delete Dr. ${name}? This action cannot be undone.`)) return;
     setDeletingId(id);
     const result = await deleteDoctor(id);
-
-    if (result.error) {
-      setError(result.error);
-    } else {
-      setDoctors((prev) => prev.filter((d) => d.id !== id));
-    }
-
+    if (result.error) setError(result.error);
+    else setDoctors((prev) => prev.filter((d) => d.id !== id));
     setDeletingId(null);
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <p className="text-gray-500">Loading doctors...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-        <p className="text-sm text-red-700">{error}</p>
-      </div>
-    );
-  }
+  if (loading) return <PageLoading />;
+  if (error) return <PageError message={error} onRetry={fetchDoctors} />;
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Doctor Management</h1>
-        <div className="flex gap-2">
-          <button
-            onClick={() => void fetchDoctors()}
-            className="rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
-          >
-            Refresh
-          </button>
-          <Link
-            href="/dashboard/doctors/new"
-            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-          >
+    <div className="animate-fade-in">
+      <PageHeader
+        title="Doctors"
+        description="Manage doctor profiles and specialties"
+        action={
+          <Link href="/dashboard/doctors/new" className={buttonVariants({ className: "gap-2" })}>
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
             Add Doctor
           </Link>
-        </div>
-      </div>
+        }
+      />
 
-      <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
-        <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Specialty
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Created At
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            {doctors.map((doctor) => (
-              <tr key={doctor.id}>
-                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                  {doctor.name}
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                  {doctor.specialty}
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                  {new Date(doctor.created_at).toLocaleDateString()}
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm">
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() =>
-                        router.push(`/dashboard/doctors/${doctor.id}/edit`)
-                      }
-                      className="text-indigo-600 hover:text-indigo-900"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => void handleDelete(doctor.id, doctor.name)}
-                      disabled={deletingId === doctor.id}
-                      className="text-red-600 hover:text-red-900 disabled:opacity-50"
-                    >
-                      {deletingId === doctor.id ? "Deleting..." : "Delete"}
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </div>
-
-        {doctors.length === 0 && (
-          <div className="py-8 text-center text-gray-500">No doctors found.</div>
-        )}
-      </div>
+      {doctors.length === 0 ? (
+        <PageEmpty
+          title="No doctors yet"
+          description="Get started by adding your first doctor."
+          actionLabel="Add Doctor"
+          actionHref="/dashboard/doctors/new"
+        />
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Specialty</TableHead>
+                    <TableHead className="hidden md:table-cell">Created</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {doctors.map((doctor) => (
+                    <TableRow key={doctor.id}>
+                      <TableCell className="font-medium">{doctor.name}</TableCell>
+                      <TableCell>
+                        <span className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
+                          {doctor.specialty}
+                        </span>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-muted-foreground">
+                        {new Date(doctor.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Link href={`/dashboard/doctors/${doctor.id}/edit`} className={buttonVariants({ variant: "ghost", size: "sm" })}>
+                            Edit
+                          </Link>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => void handleDelete(doctor.id, doctor.name)}
+                            disabled={deletingId === doctor.id}
+                          >
+                            {deletingId === doctor.id ? "..." : "Delete"}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

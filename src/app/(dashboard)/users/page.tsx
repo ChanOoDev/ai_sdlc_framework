@@ -2,6 +2,28 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { getUsers, updateUserRole } from "@/app/actions/users";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import PageHeader from "../components/PageHeader";
+import PageLoading from "../components/PageLoading";
+import PageError from "../components/PageError";
+import PageEmpty from "../components/PageEmpty";
 import type { Database } from "@/types/database";
 
 type UserRole = Database["public"]["Enums"]["user_role"];
@@ -16,6 +38,12 @@ interface User {
 
 const ROLE_OPTIONS: readonly UserRole[] = ["admin", "doctor", "receptionist"];
 
+const roleColors: Record<UserRole, string> = {
+  admin: "bg-rose-100 text-rose-700 hover:bg-rose-100",
+  doctor: "bg-teal-100 text-teal-700 hover:bg-teal-100",
+  receptionist: "bg-sky-100 text-sky-700 hover:bg-sky-100",
+};
+
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,16 +53,13 @@ export default function UsersPage() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
-
     const result = await getUsers();
-
     if (result.error) {
       setError(result.error);
       setUsers([]);
     } else {
       setUsers(result.data ?? []);
     }
-
     setLoading(false);
   }, []);
 
@@ -45,7 +70,6 @@ export default function UsersPage() {
   async function handleRoleChange(userId: string, newRole: UserRole) {
     setUpdatingId(userId);
     const result = await updateUserRole(userId, newRole);
-
     if (result.error) {
       setError(result.error);
     } else {
@@ -53,99 +77,88 @@ export default function UsersPage() {
         prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
       );
     }
-
     setUpdatingId(null);
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <p className="text-gray-500">Loading users...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-        <p className="text-sm text-red-700">{error}</p>
-      </div>
-    );
-  }
+  if (loading) return <PageLoading />;
+  if (error) return <PageError message={error} onRetry={fetchUsers} />;
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">User Management</h1>
-        <button
-          onClick={() => void fetchUsers()}
-          className="rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
-        >
-          Refresh
-        </button>
-      </div>
+    <div className="animate-fade-in">
+      <PageHeader
+        title="User Management"
+        description="Manage user accounts and role assignments"
+        action={
+          <Button variant="outline" onClick={() => void fetchUsers()} className="gap-2">
+            <svg className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
+            </svg>
+            Refresh
+          </Button>
+        }
+      />
 
-      <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
-        <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Email
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Role
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Created At
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                  {user.full_name}
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                  {user.email}
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                  <select
-                    value={user.role}
-                    onChange={(e) =>
-                      void handleRoleChange(
-                        user.id,
-                        e.target.value as UserRole
-                      )
-                    }
-                    disabled={updatingId === user.id}
-                    aria-label={`Change role for ${user.full_name}`}
-                    className="rounded border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:opacity-50"
-                  >
-                    {ROLE_OPTIONS.map((role) => (
-                      <option key={role} value={role}>
-                        {role.charAt(0).toUpperCase() + role.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                  {new Date(user.created_at).toLocaleDateString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </div>
-
-        {users.length === 0 && (
-          <div className="py-8 text-center text-gray-500">No users found.</div>
-        )}
-      </div>
+      {users.length === 0 ? (
+        <PageEmpty
+          title="No users found"
+          description="No user accounts are registered yet."
+        />
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead className="hidden sm:table-cell">Email</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead className="hidden md:table-cell">Created</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">{user.full_name}</TableCell>
+                      <TableCell className="hidden sm:table-cell text-muted-foreground">
+                        {user.email}
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={user.role}
+                          onValueChange={(value) =>
+                            void handleRoleChange(user.id, value as UserRole)
+                          }
+                          disabled={updatingId === user.id}
+                        >
+                          <SelectTrigger
+                            className="w-32"
+                            aria-label={`Change role for ${user.full_name}`}
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {ROLE_OPTIONS.map((role) => (
+                              <SelectItem key={role} value={role}>
+                                <Badge variant="secondary" className={`text-[10px] ${roleColors[role]}`}>
+                                  {role.charAt(0).toUpperCase() + role.slice(1)}
+                                </Badge>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-muted-foreground">
+                        {new Date(user.created_at).toLocaleDateString()}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
