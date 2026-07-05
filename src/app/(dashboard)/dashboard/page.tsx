@@ -1,10 +1,24 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 export default async function DashboardPage() {
   const supabase = createClient();
 
+  // Get user info
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, role")
+    .eq("id", user?.id)
+    .single();
+
+  const userName = profile?.full_name?.split(" ")[0] ?? "there";
+  const role = profile?.role ?? "receptionist";
+
+  // Fetch counts in parallel
   const [
     { count: patientCount },
     { count: doctorCount },
@@ -21,21 +35,49 @@ export default async function DashboardPage() {
       value: patientCount ?? 0,
       icon: "M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z",
       color: "bg-teal-50 text-teal-600",
+      href: "/dashboard/patients",
     },
     {
       title: "Doctors",
       value: doctorCount ?? 0,
       icon: "M11.42 15.17l-5.1-5.1m0 0L11.42 4.97m-5.1 5.1H21M3 3h2.25M3 21h2.25M12 3a9 9 0 100 18 9 9 0 000-18z",
       color: "bg-indigo-50 text-indigo-600",
+      href: "/dashboard/doctors",
     },
     {
       title: "Consultations",
       value: consultationCount ?? 0,
       icon: "M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z",
       color: "bg-amber-50 text-amber-600",
+      href: "/dashboard/consultations",
     },
   ];
 
+  const quickActions = [
+    {
+      title: "Add Patient",
+      description: "Register a new patient",
+      icon: "M12 4.5v15m7.5-7.5h-15",
+      href: "/dashboard/patients/new",
+      color: "bg-teal-500 hover:bg-teal-600",
+    },
+    {
+      title: "New Consultation",
+      description: "Record a consultation note",
+      icon: "M12 4.5v15m7.5-7.5h-15",
+      href: "/dashboard/consultations/new",
+      color: "bg-indigo-500 hover:bg-indigo-600",
+    },
+    {
+      title: "Add Doctor",
+      description: "Add a new doctor profile",
+      icon: "M12 4.5v15m7.5-7.5h-15",
+      href: "/dashboard/doctors/new",
+      color: "bg-emerald-500 hover:bg-emerald-600",
+    },
+  ];
+
+  // Fetch recent consultations
   const { data: recentConsultations } = await supabase
     .from("consultations")
     .select("id, diagnosis, created_at, patient_id, doctor_id")
@@ -73,41 +115,80 @@ export default async function DashboardPage() {
 
   return (
     <div className="animate-fade-in">
+      {/* Welcome Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Welcome back, {userName} 👋
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Overview of your clinic&apos;s activity
+          Here&apos;s what&apos;s happening at your clinic today.
         </p>
         <Separator className="mt-4" />
       </div>
 
+      {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                  <p className="mt-1 text-3xl font-bold tracking-tight">{stat.value}</p>
+          <Link key={stat.title} href={stat.href}>
+            <Card className="transition-colors hover:bg-accent/50">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                    <p className="mt-1 text-3xl font-bold tracking-tight">{stat.value}</p>
+                  </div>
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${stat.color}`}>
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d={stat.icon} />
+                    </svg>
+                  </div>
                 </div>
-                <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${stat.color}`}>
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d={stat.icon} />
-                  </svg>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
 
+      {/* Quick Actions */}
+      <div className="mt-6">
+        <h2 className="mb-3 text-sm font-semibold text-muted-foreground">Quick Actions</h2>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {quickActions.map((action) => (
+            <Link
+              key={action.title}
+              href={action.href}
+              className="group flex items-center gap-3 rounded-lg border bg-card p-4 transition-colors hover:bg-accent/50"
+            >
+              <div className={`flex h-10 w-10 items-center justify-center rounded-lg text-white ${action.color}`}>
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d={action.icon} />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-medium">{action.title}</p>
+                <p className="text-xs text-muted-foreground">{action.description}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Consultations */}
       <Card className="mt-6">
         <CardHeader>
           <CardTitle className="text-base">Recent Consultations</CardTitle>
         </CardHeader>
         <CardContent>
           {enrichedRecent.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">No consultations yet.</p>
+            <div className="py-8 text-center">
+              <p className="text-sm text-muted-foreground">No consultations yet.</p>
+              <Link
+                href="/dashboard/consultations/new"
+                className={buttonVariants({ variant: "link", className: "mt-2" })}
+              >
+                Record first consultation →
+              </Link>
+            </div>
           ) : (
             <div className="space-y-3">
               {enrichedRecent.map((c) => (
