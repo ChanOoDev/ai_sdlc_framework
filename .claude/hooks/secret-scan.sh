@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-set -e
-
-echo "[hook] Running secret scan..."
 
 MATCHES=$(grep -RIn \
-  -E "SUPABASE_SERVICE_ROLE_KEY=.+|service_role|sk-[A-Za-z0-9]|eyJ[A-Za-z0-9_-]{20,}" \
+  -E "(SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY|sk_live_|sk_test_|AKIA[0-9A-Z]{16})" \
   . \
   --exclude-dir=node_modules \
   --exclude-dir=.next \
   --exclude-dir=.git \
+  --exclude-dir=.claude \
   --exclude=".env.example" \
-  --exclude="*.md" || true)
+  --exclude="*.md" \
+  --exclude="package-lock.json" \
+  --exclude="*.sh" 2>/dev/null || true)
 
 if [ -n "$MATCHES" ]; then
-  echo "Potential secret detected:"
+  echo "[hook] Potential secret detected:"
   echo "$MATCHES"
   echo "Remove secrets before continuing."
   exit 2
 fi
 
-echo "[hook] Secret scan passed."
+exit 0

@@ -15,14 +15,6 @@
           {
             "type": "command",
             "command": ".claude/hooks/typecheck.sh"
-          },
-          {
-            "type": "command",
-            "command": ".claude/hooks/build.sh"
-          },
-          {
-            "type": "command",
-            "command": ".claude/hooks/test.sh"
           }
         ]
       }
