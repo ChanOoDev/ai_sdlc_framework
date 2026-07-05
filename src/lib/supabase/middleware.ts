@@ -36,8 +36,12 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Protect /dashboard/users to admin only
-  if (user && request.nextUrl.pathname.startsWith("/dashboard/users")) {
+  // Protect /dashboard/users and /dashboard/doctors to admin only
+  if (
+    user &&
+    (request.nextUrl.pathname.startsWith("/dashboard/users") ||
+      request.nextUrl.pathname.startsWith("/dashboard/doctors"))
+  ) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
