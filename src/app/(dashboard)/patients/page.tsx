@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getPatients, deletePatient } from "@/app/actions/patients";
 import type { Database } from "@/types/database";
@@ -112,7 +113,12 @@ export default function PatientsPage() {
             {patients.map((patient) => (
               <tr key={patient.id}>
                 <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                  {patient.name}
+                  <Link
+                    href={`/dashboard/patients/${patient.id}`}
+                    className="text-indigo-600 hover:text-indigo-900 hover:underline"
+                  >
+                    {patient.name}
+                  </Link>
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                   {patient.email ?? "N/A"}
