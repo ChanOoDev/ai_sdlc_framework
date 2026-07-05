@@ -1,61 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
+import { signup } from "@/app/actions/auth";
 
 export default function SignupPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<"doctor" | "receptionist">("receptionist");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const supabase = createClient();
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    // 1. Sign up the user
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          role,
-        },
-      },
-    });
+    const formData = new FormData(e.currentTarget);
+    const result = await signup(formData);
 
-    if (authError) {
-      setError(authError.message);
+    if (result?.error) {
+      setError(result.error);
       setLoading(false);
-      return;
     }
-
-    // 2. Create profile record
-    if (authData.user) {
-      const { error: profileError } = await supabase.from("profiles").insert({
-        id: authData.user.id,
-        email,
-        full_name: fullName,
-        role,
-      });
-
-      if (profileError) {
-        setError(profileError.message);
-        setLoading(false);
-        return;
-      }
-    }
-
-    router.push("/dashboard");
-    router.refresh();
+    // On success, the Server Action redirects to /dashboard
   };
 
   return (
@@ -83,8 +48,6 @@ export default function SignupPage() {
               type="text"
               autoComplete="name"
               required
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             />
           </div>
@@ -99,8 +62,6 @@ export default function SignupPage() {
               type="email"
               autoComplete="email"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             />
           </div>
@@ -115,8 +76,6 @@ export default function SignupPage() {
               type="password"
               autoComplete="new-password"
               required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             />
           </div>
@@ -128,8 +87,7 @@ export default function SignupPage() {
             <select
               id="role"
               name="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value as "doctor" | "receptionist")}
+              defaultValue="receptionist"
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             >
               <option value="receptionist">Receptionist</option>

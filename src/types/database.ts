@@ -12,7 +12,7 @@ export interface Database {
       profiles: {
         Row: {
           id: string;
-          full_name: string | null;
+          full_name: string;
           email: string;
           role: "admin" | "doctor" | "receptionist";
           created_at: string;
@@ -20,7 +20,7 @@ export interface Database {
         };
         Insert: {
           id: string;
-          full_name?: string | null;
+          full_name: string;
           email: string;
           role?: "admin" | "doctor" | "receptionist";
           created_at?: string;
@@ -28,7 +28,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          full_name?: string | null;
+          full_name?: string;
           email?: string;
           role?: "admin" | "doctor" | "receptionist";
           created_at?: string;
@@ -40,21 +40,21 @@ export interface Database {
           id: string;
           user_id: string;
           name: string;
-          specialty: string | null;
+          specialty: string;
           created_at: string;
         };
         Insert: {
           id?: string;
           user_id: string;
           name: string;
-          specialty?: string | null;
+          specialty: string;
           created_at?: string;
         };
         Update: {
           id?: string;
           user_id?: string;
           name?: string;
-          specialty?: string | null;
+          specialty?: string;
           created_at?: string;
         };
       };
@@ -66,7 +66,7 @@ export interface Database {
           phone: string | null;
           date_of_birth: string | null;
           address: string | null;
-          created_by: string | null;
+          created_by: string;
           created_at: string;
           updated_at: string;
         };
@@ -77,7 +77,7 @@ export interface Database {
           phone?: string | null;
           date_of_birth?: string | null;
           address?: string | null;
-          created_by?: string | null;
+          created_by: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -88,7 +88,7 @@ export interface Database {
           phone?: string | null;
           date_of_birth?: string | null;
           address?: string | null;
-          created_by?: string | null;
+          created_by?: string;
           created_at?: string;
           updated_at?: string;
         };
