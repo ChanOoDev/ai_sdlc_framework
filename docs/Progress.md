@@ -1,5 +1,7 @@
 # Project Progress
 
+**Framework Version:** 1.0.0
+
 ## Current Phase
 
 Phase 0: Project Brief

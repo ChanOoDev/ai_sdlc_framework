@@ -1,5 +1,7 @@
 # Project Brief
 
+**Framework Version:** 1.0.0
+
 ## Project Name
 
 Doctor Note MVP
