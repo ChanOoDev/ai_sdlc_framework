@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Project Documentation
+    url: ./docs/00-Project-Brief.md
+    about: Review the project brief and SDLC documents before creating new work items.
