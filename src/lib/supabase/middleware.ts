@@ -70,6 +70,25 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+  // Protect /dashboard/consultations/new and /dashboard/consultations/*/edit to admin and doctor only
+  if (
+    user &&
+    (request.nextUrl.pathname === "/dashboard/consultations/new" ||
+      /^\/dashboard\/consultations\/[^/]+\/edit$/.test(
+        request.nextUrl.pathname
+      ))
+  ) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.role !== "admin" && profile?.role !== "doctor") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  }
+
   // Redirect authenticated users away from auth pages
   if (user && (request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/signup")) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
