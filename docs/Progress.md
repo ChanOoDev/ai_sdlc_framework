@@ -16,17 +16,19 @@ Phase 4: Development
 - US-001: Authentication (Login/Signup) ✅
 - US-002: Role-based Access Control ✅
 - US-003: Doctor Management ✅
-  - Server actions: getDoctors, getDoctor, createDoctor, updateDoctor, deleteDoctor
-  - Doctor list page with table, Add/Edit/Delete actions
-  - Doctor create page (/dashboard/doctors/new)
-  - Doctor edit page (/dashboard/doctors/[id]/edit)
-  - Middleware admin guard for /dashboard/doctors
+- US-004: Patient Management ✅
+  - Server actions: getPatients, getPatient, createPatient, updatePatient, deletePatient
+  - Patient list page with table, Add/Edit/Delete actions
+  - Patient create page (/dashboard/patients/new)
+  - Patient edit page (/dashboard/patients/[id]/edit)
+  - Middleware guard for create/edit (admin + receptionist only)
 - Code review: PASS (0 Critical, 0 High)
 - Bugfix rounds 1 and 2: All findings resolved
 - Regression: PASS (typecheck, lint, build clean)
 - Release check: GO
 - Deploy check: READY
 - Documentation sync: README + 43-Documentation.md updated
+- GitHub Project board created with 10 user story issues
 
 ## In Progress
 
@@ -34,7 +36,6 @@ None
 
 ## Pending
 
-- US-004: Patient Management
 - US-005: Patient Profile
 - US-006: Consultation Notes
 - US-007: Patient History

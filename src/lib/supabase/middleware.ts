@@ -53,6 +53,23 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+  // Protect /dashboard/patients/new and /dashboard/patients/*/edit to admin and receptionist
+  if (
+    user &&
+    (request.nextUrl.pathname === "/dashboard/patients/new" ||
+      /^\/dashboard\/patients\/[^/]+\/edit$/.test(request.nextUrl.pathname))
+  ) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.role !== "admin" && profile?.role !== "receptionist") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  }
+
   // Redirect authenticated users away from auth pages
   if (user && (request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/signup")) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
