@@ -1,4 +1,4 @@
-# Post Deployment Smoke Test
+# Post-Deployment Smoke Test
 
 Status: Draft
 

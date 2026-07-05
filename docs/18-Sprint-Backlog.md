@@ -2,11 +2,48 @@
 
 Status: Draft
 
-## Purpose
+Owner: Scrum Master
+Last updated: TODO
 
-TODO: Complete this document during the AI-driven SDLC workflow.
+---
 
-## Notes
+## Definition of Done
 
-- Owner agent: TODO
-- Last updated: TODO
+- [ ] Code complete
+- [ ] Code reviewed (no Critical/High findings)
+- [ ] Tests written and passing
+- [ ] Documentation updated
+- [ ] QA validated
+- [ ] Acceptance criteria met
+
+## Sprint Backlog
+
+| ID | Title | Priority | Estimate | Status | Dependencies |
+|---|---|---|---|---|---|
+| TODO | TODO | TODO | TODO | Pending | TODO |
+
+## Task Breakdown
+
+### TASK-XXX: TODO
+
+- **Story:** US-XXX
+- **Estimate:** TODO
+- **Assignee:** Developer
+- **Status:** Pending
+
+**Subtasks:**
+- [ ] TODO
+
+## Daily Plan
+
+### Date: TODO
+
+| Task | Owner | Status | Blockers |
+|---|---|---|---|
+| TODO | TODO | Pending | TODO |
+
+## Demo Plan
+
+| Feature | Demo Script | Status |
+|---|---|---|
+| TODO | TODO | TODO |

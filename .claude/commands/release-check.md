@@ -1,17 +1,12 @@
 Run Release Manager workflow.
 
 Read:
-- docs/31-Release-Readiness.md
-- docs/33-Regression-Test-Report.md
-- docs/29-Bug-Report.md
-- docs/23-Code-Review-Report.md
-- docs/24-Security-Review.md
+- docs/23-Review-Report.md
+- docs/26-QA-Report.md
+- docs/Progress.md
 
 Create/update:
-- docs/34-Release-Checklist.md
-- docs/35-Go-No-Go-Report.md
-- docs/36-Release-Notes.md
-- docs/37-DevOps-Handoff.md
+- docs/31-Release-Report.md
 
 Decision rule:
 - Critical bug > 0 = NO-GO

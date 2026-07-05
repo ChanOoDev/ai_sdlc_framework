@@ -6,13 +6,11 @@ $ARGUMENTS
 Read:
 - templates/pull-request-template.md
 - docs/02-PRD.md
-- docs/06-Acceptance-Criteria.md
 - docs/12-Architecture.md
-- docs/20-Definition-of-Done.md
-- docs/23-Code-Review-Report.md
-- docs/24-Security-Review.md
-- docs/33-Regression-Test-Report.md
-- docs/36-Release-Notes.md
+- docs/18-Sprint-Backlog.md
+- docs/23-Review-Report.md
+- docs/26-QA-Report.md
+- docs/31-Release-Report.md
 - docs/Progress.md
 
 Create/update:

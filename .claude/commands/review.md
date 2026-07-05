@@ -2,8 +2,7 @@ Run Phase 5 code review.
 
 Read:
 - docs/12-Architecture.md
-- docs/16-RLS-Policies.md
-- docs/20-Definition-of-Done.md
+- docs/18-Sprint-Backlog.md
 - docs/Progress.md
 
 Review:
@@ -19,9 +18,7 @@ Review:
 - Maintainability
 
 Create/update:
-- docs/23-Code-Review-Report.md
-- docs/24-Security-Review.md
-- docs/25-Refactoring-Plan.md
+- docs/23-Review-Report.md
 
 Group findings:
 - Critical

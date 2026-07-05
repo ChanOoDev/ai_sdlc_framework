@@ -1,7 +1,5 @@
 Read:
 - docs/18-Sprint-Backlog.md
-- docs/19-Task-Breakdown.md
-- docs/20-Definition-of-Done.md
 - docs/Progress.md
 
 Find the next Pending task.

@@ -8,10 +8,6 @@ Read:
 
 Update:
 - README.md
-- docs/43-README.md
-- docs/44-Developer-Guide.md
-- docs/45-User-Guide.md
-- docs/46-Demo-Script.md
-- docs/47-Final-Release-Summary.md
+- docs/43-Documentation.md
 
 Ensure docs match actual implemented features.

@@ -2,19 +2,12 @@ Run Phase 6 QA.
 
 Read:
 - docs/02-PRD.md
-- docs/06-Acceptance-Criteria.md
-- docs/20-Definition-of-Done.md
-- docs/23-Code-Review-Report.md
-- docs/24-Security-Review.md
+- docs/18-Sprint-Backlog.md
+- docs/23-Review-Report.md
 - docs/Progress.md
 
 Create/update:
-- docs/26-Test-Plan.md
-- docs/27-Test-Cases.md
-- docs/28-Test-Execution-Report.md
-- docs/29-Bug-Report.md
-- docs/30-UAT-Checklist.md
-- docs/31-Release-Readiness.md
+- docs/26-QA-Report.md
 
 Generate or update tests.
 

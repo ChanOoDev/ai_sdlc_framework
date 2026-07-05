@@ -5,10 +5,8 @@ $ARGUMENTS
 
 Read:
 - docs/02-PRD.md
-- docs/06-Acceptance-Criteria.md
 - docs/12-Architecture.md
 - docs/18-Sprint-Backlog.md
-- docs/20-Definition-of-Done.md
 - docs/Progress.md
 
 Workflow:

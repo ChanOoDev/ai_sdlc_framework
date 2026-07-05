@@ -3,8 +3,8 @@ Summarize current project status.
 Read:
 - docs/Progress.md
 - docs/18-Sprint-Backlog.md if exists
-- docs/29-Bug-Report.md if exists
-- docs/35-Go-No-Go-Report.md if exists
+- docs/26-QA-Report.md if exists
+- docs/31-Release-Report.md if exists
 
 Return:
 1. Current phase

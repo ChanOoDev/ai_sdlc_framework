@@ -58,11 +58,11 @@ Use the issue templates in `.github/ISSUE_TEMPLATE/`.
 
 | SDLC Stage | GitHub Project Status | Main Artifact |
 |---|---|---|
-| Product / Planning | Backlog | `docs/02-PRD.md`, `docs/04-User-Stories.md` |
-| Sprint Selection | Ready | `docs/18-Sprint-Backlog.md`, `docs/19-Task-Breakdown.md` |
+| Product / Planning | Backlog | `docs/02-PRD.md` |
+| Sprint Selection | Ready | `docs/18-Sprint-Backlog.md` |
 | Development | In Progress | Branches, commits, implementation changes |
-| Code Review | In Review | PRs, `docs/23-Code-Review-Report.md` |
-| QA / Regression | QA | `docs/28-Test-Execution-Report.md`, `docs/33-Regression-Test-Report.md` |
+| Code Review | In Review | PRs, `docs/23-Review-Report.md` |
+| QA / Regression | QA | `docs/26-QA-Report.md` |
 | Blocked Work | Blocked | Updated issue with blocker details |
 | Completed Work | Done | Merged PR, updated docs, release evidence as needed |
 

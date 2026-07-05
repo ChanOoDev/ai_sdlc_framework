@@ -1,9 +1,8 @@
 Run Phase 7 DevOps readiness check.
 
 Read:
-- docs/35-Go-No-Go-Report.md
-- docs/37-DevOps-Handoff.md
-- docs/38-Deployment-Plan.md if exists
+- docs/31-Release-Report.md
+- docs/Progress.md
 
 Verify:
 - Go/No-Go decision is GO
@@ -14,8 +13,4 @@ Verify:
 - Rollback plan exists
 
 Create/update:
-- docs/38-Deployment-Plan.md
-- docs/39-Environment-Checklist.md
-- docs/40-Deployment-Report.md
-- docs/41-Post-Deployment-Smoke-Test.md
-- docs/42-Rollback-Plan.md
+- docs/38-Deployment-Report.md
