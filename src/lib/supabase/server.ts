@@ -16,14 +16,16 @@ export function createClient() {
           try {
             cookieStore.set({ name, value, ...options });
           } catch (error) {
-            // Server Component, ignore
+            // Called from a Server Component — safe to ignore.
+            // This can be safely removed if you set cookies in middleware or Server Actions.
           }
         },
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: "", ...options });
           } catch (error) {
-            // Server Component, ignore
+            // Called from a Server Component — safe to ignore.
+            // This can be safely removed if you set cookies in middleware or Server Actions.
           }
         },
       },

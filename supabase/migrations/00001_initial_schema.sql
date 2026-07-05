@@ -51,7 +51,15 @@ ALTER TABLE consultations ENABLE ROW LEVEL SECURITY;
 -- RLS Policies: profiles
 CREATE POLICY "Users can insert own profile"
   ON profiles FOR INSERT
-  WITH CHECK (auth.uid() = id);
+  WITH CHECK (
+    auth.uid() = id
+    AND (
+      role = 'receptionist'
+      OR EXISTS (
+        SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'
+      )
+    )
+  );
 
 CREATE POLICY "Users can view own profile"
   ON profiles FOR SELECT
@@ -60,6 +68,14 @@ CREATE POLICY "Users can view own profile"
 CREATE POLICY "Users can update own profile"
   ON profiles FOR UPDATE
   USING (auth.uid() = id);
+
+CREATE POLICY "Admins can update any profile"
+  ON profiles FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
 
 CREATE POLICY "Admins can view all profiles"
   ON profiles FOR SELECT
@@ -72,7 +88,7 @@ CREATE POLICY "Admins can view all profiles"
 -- RLS Policies: doctors
 CREATE POLICY "Anyone authenticated can view doctors"
   ON doctors FOR SELECT
-  USING (auth.role() = 'authenticated');
+  USING (auth.uid() IS NOT NULL);
 
 CREATE POLICY "Admins can manage doctors"
   ON doctors FOR ALL
@@ -121,6 +137,7 @@ CREATE POLICY "Admins and receptionists can insert patients"
     EXISTS (
       SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'receptionist')
     )
+    AND created_by = auth.uid()
   );
 
 CREATE POLICY "Admins and receptionists can update patients"

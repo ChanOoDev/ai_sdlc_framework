@@ -46,3 +46,36 @@ Fixed all 1 Critical, 4 High, and 3 Medium findings from the code review. Change
 - **FIND-005**: PHI exposure risk mitigated. Doctors can no longer see all patients/consultations.
 - **FIND-010**: Doctors can no longer create consultations attributed to other doctors.
 - **FIND-008**: Admin-only delete enforcement on patients and consultations.
+
+---
+
+## Bugfix Round 2 (2026-07-06)
+
+Fixed 1 Critical, 3 High, and 4 Medium findings from the re-review.
+
+| Bug ID | Severity | Fix Description | Files Changed | Status |
+|---|---|---|---|---|
+| FIND-001 (R2) | Critical | Added Admin UPDATE policy on profiles: admins can now update any profile (role changes, name corrections). | supabase/migrations/00001_initial_schema.sql | Fixed |
+| FIND-002 (R2) | High | Replaced deprecated `auth.role() = 'authenticated'` with `auth.uid() IS NOT NULL` in doctors SELECT policy. | supabase/migrations/00001_initial_schema.sql | Fixed |
+| FIND-003 (R2) | High | Fixed self-signup role escalation: INSERT policy now restricts non-admin signups to `role = 'receptionist'` only. | supabase/migrations/00001_initial_schema.sql | Fixed |
+| FIND-004 (R2) | High | Added `created_by = auth.uid()` validation to patients INSERT policy — audit trail integrity enforced. | supabase/migrations/00001_initial_schema.sql | Fixed |
+| FIND-005 (R2) | Medium | Added explicit null checks on FormData values in signup Server Action — no more silent "null" strings. | src/app/actions/auth.ts | Fixed |
+| FIND-006 (R2) | Medium | Updated cookie error comments to clarify they are safely ignorable (Server Component context). | src/lib/supabase/server.ts | Fixed |
+| FIND-007 (R2) | Medium | Added security headers to next.config.js: X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy, X-XSS-Protection, poweredByHeader disabled. | next.config.js | Fixed |
+| FIND-008 (R2) | Medium | Removed `user_id` from doctors.Update and `created_by` from patients.Update — these fields are now immutable after insert. | src/types/database.ts | Fixed |
+
+### Round 2 Files Modified
+
+1. `supabase/migrations/00001_initial_schema.sql` — Admin UPDATE policy, deprecated auth.role() fix, role-restricted INSERT, created_by validation
+2. `src/app/actions/auth.ts` — FormData null checks
+3. `src/lib/supabase/server.ts` — Clarified error handling comments
+4. `next.config.js` — Security headers
+5. `src/types/database.ts` — Immutable field types
+
+### Round 2 Security Impact
+
+- **Admin RBAC**: Admins can now manage all user roles — core RBAC requirement met.
+- **Future-proofing**: Removed deprecated Supabase function call.
+- **Self-signup hardened**: New users can only register as receptionist; admin/doctor roles require admin assignment.
+- **Audit trail**: Patient creation attribution is now enforced at the database level.
+- **Browser security**: Clickjacking, MIME sniffing, and XSS protections enabled via headers.

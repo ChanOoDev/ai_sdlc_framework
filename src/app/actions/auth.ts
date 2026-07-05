@@ -6,10 +6,24 @@ import { createClient } from "@/lib/supabase/server";
 const ALLOWED_SELF_REGISTER_ROLES = ["doctor", "receptionist"] as const;
 
 export async function signup(formData: FormData) {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const fullName = formData.get("fullName") as string;
-  const role = formData.get("role") as string;
+  const email = formData.get("email");
+  const password = formData.get("password");
+  const fullName = formData.get("fullName");
+  const role = formData.get("role");
+
+  // Validate required fields
+  if (typeof email !== "string" || !email) {
+    return { error: "Email is required." };
+  }
+  if (typeof password !== "string" || !password) {
+    return { error: "Password is required." };
+  }
+  if (typeof fullName !== "string" || !fullName.trim()) {
+    return { error: "Full name is required." };
+  }
+  if (typeof role !== "string" || !role) {
+    return { error: "Role is required." };
+  }
 
   // Server-side role validation -- only doctor and receptionist allowed for self-registration
   if (!ALLOWED_SELF_REGISTER_ROLES.includes(role as typeof ALLOWED_SELF_REGISTER_ROLES[number])) {
