@@ -79,16 +79,17 @@ export default function PatientsPage() {
           >
             Refresh
           </button>
-          <button
-            onClick={() => router.push("/dashboard/patients/new")}
+          <Link
+            href="/dashboard/patients/new"
             className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
           >
             Add Patient
-          </button>
+          </Link>
         </div>
       </div>
 
       <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
+        <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -152,6 +153,7 @@ export default function PatientsPage() {
             ))}
           </tbody>
         </table>
+        </div>
 
         {patients.length === 0 && (
           <div className="py-8 text-center text-gray-500">No patients found.</div>

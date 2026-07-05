@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   getConsultations,
@@ -96,16 +97,17 @@ export default function ConsultationsPage() {
           >
             Refresh
           </button>
-          <button
-            onClick={() => router.push("/dashboard/consultations/new")}
+          <Link
+            href="/dashboard/consultations/new"
             className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
           >
             Add Consultation
-          </button>
+          </Link>
         </div>
       </div>
 
       <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
+        <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -176,6 +178,7 @@ export default function ConsultationsPage() {
             ))}
           </tbody>
         </table>
+        </div>
 
         {consultations.length === 0 && (
           <div className="py-8 text-center text-gray-500">

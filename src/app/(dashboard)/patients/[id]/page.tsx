@@ -192,14 +192,16 @@ export default async function PatientDetailPage({ params }: PatientDetailPagePro
                       </div>
                     )}
 
-                    <div className="mt-2">
-                      <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
-                        Notes
-                      </span>
-                      <p className="mt-1 text-sm text-gray-700 line-clamp-2">
-                        {c.notes}
-                      </p>
-                    </div>
+                    {c.notes && (
+                      <div className="mt-2">
+                        <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                          Notes
+                        </span>
+                        <p className="mt-1 text-sm text-gray-700 line-clamp-2">
+                          {c.notes}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </li>
               ))}

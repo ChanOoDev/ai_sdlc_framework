@@ -79,13 +79,14 @@ export default function UsersPage() {
         <h1 className="text-2xl font-bold">User Management</h1>
         <button
           onClick={() => void fetchUsers()}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          className="rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
         >
           Refresh
         </button>
       </div>
 
       <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
+        <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -122,6 +123,7 @@ export default function UsersPage() {
                       )
                     }
                     disabled={updatingId === user.id}
+                    aria-label={`Change role for ${user.full_name}`}
                     className="rounded border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:opacity-50"
                   >
                     {ROLE_OPTIONS.map((role) => (
@@ -138,6 +140,7 @@ export default function UsersPage() {
             ))}
           </tbody>
         </table>
+        </div>
 
         {users.length === 0 && (
           <div className="py-8 text-center text-gray-500">No users found.</div>

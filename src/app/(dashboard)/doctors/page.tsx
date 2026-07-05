@@ -94,6 +94,7 @@ export default function DoctorsPage() {
       </div>
 
       <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
+        <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -146,6 +147,7 @@ export default function DoctorsPage() {
             ))}
           </tbody>
         </table>
+        </div>
 
         {doctors.length === 0 && (
           <div className="py-8 text-center text-gray-500">No doctors found.</div>
