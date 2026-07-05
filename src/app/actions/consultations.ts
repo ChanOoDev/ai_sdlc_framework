@@ -223,6 +223,7 @@ export async function createConsultation(
   }
 
   revalidatePath("/dashboard/consultations");
+  revalidatePath(`/dashboard/patients/${data.patient_id}`);
   return { success: true };
 }
 
@@ -278,8 +279,12 @@ export async function updateConsultation(id: string, data: ConsultationUpdate) {
   if (data.prescription !== undefined)
     updateData.prescription = data.prescription !== null ? data.prescription.trim() : null;
 
-  // Set updated_at
-  updateData.updated_at = new Date().toISOString();
+  // Fetch consultation to get patient_id for revalidation
+  const { data: existing } = await supabase
+    .from("consultations")
+    .select("patient_id")
+    .eq("id", id)
+    .single();
 
   const { error } = await supabase
     .from("consultations")
@@ -292,6 +297,9 @@ export async function updateConsultation(id: string, data: ConsultationUpdate) {
 
   revalidatePath("/dashboard/consultations");
   revalidatePath(`/dashboard/consultations/${id}/edit`);
+  if (existing?.patient_id) {
+    revalidatePath(`/dashboard/patients/${existing.patient_id}`);
+  }
   return { success: true };
 }
 
@@ -314,6 +322,13 @@ export async function deleteConsultation(id: string) {
     return { error: "Consultation ID is required." };
   }
 
+  // Fetch consultation to get patient_id for revalidation
+  const { data: existing } = await supabase
+    .from("consultations")
+    .select("patient_id")
+    .eq("id", id)
+    .single();
+
   const { error } = await supabase
     .from("consultations")
     .delete()
@@ -324,7 +339,65 @@ export async function deleteConsultation(id: string) {
   }
 
   revalidatePath("/dashboard/consultations");
+  if (existing?.patient_id) {
+    revalidatePath(`/dashboard/patients/${existing.patient_id}`);
+  }
   return { success: true };
+}
+
+/**
+ * Fetch consultations for a specific patient, ordered by date (newest first).
+ * Joins doctor name for display.
+ */
+export async function getConsultationsByPatient(patientId: string) {
+  const supabase = createClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated." };
+  }
+
+  if (!patientId || typeof patientId !== "string") {
+    return { error: "Patient ID is required." };
+  }
+
+  const { data, error } = await supabase
+    .from("consultations")
+    .select(
+      "id, doctor_id, patient_id, notes, diagnosis, prescription, created_at, updated_at"
+    )
+    .eq("patient_id", patientId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  if (!data || data.length === 0) {
+    return { data: [] };
+  }
+
+  // Fetch doctor names
+  const doctorIds = [...new Set(data.map((c) => c.doctor_id))];
+  const { data: doctorsData } = await supabase
+    .from("doctors")
+    .select("id, name")
+    .in("id", doctorIds);
+
+  const doctorMap = new Map(
+    (doctorsData ?? []).map((d) => [d.id, d.name])
+  );
+
+  const enriched = data.map((c) => ({
+    ...c,
+    doctor_name: doctorMap.get(c.doctor_id) ?? "Unknown Doctor",
+  }));
+
+  return { data: enriched };
 }
 
 /**

@@ -21,6 +21,13 @@ Phase 4: Development
   - Edit page with pre-populated form
   - Middleware guard: admin + doctor only for create/edit
   - Doctor ownership verified on create
+- US-007: Patient History ✅
+  - Server action: getConsultationsByPatient (fetches consultations for a specific patient)
+  - Patient detail page now shows chronological consultation timeline
+  - Timeline UI with vertical line, dots, date, doctor, diagnosis, prescription, notes
+  - Empty state with link to create first consultation
+  - Error state when consultation fetch fails
+  - revalidatePath added to consultation create/update/delete for patient page freshness
 
 ## In Progress
 
@@ -28,7 +35,7 @@ None
 
 ## Pending
 
-- US-007: Patient History
+- US-008: Dashboard
 - US-008: Dashboard
 - US-009: Search
 - US-010: PDF Export

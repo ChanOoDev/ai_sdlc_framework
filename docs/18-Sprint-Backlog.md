@@ -28,7 +28,7 @@ Duration: Day 1 - Day 14
 | US-004 | Patient Management | Must | 3 days | Pending | US-002 |
 | US-005 | Patient Profile | Should | 2 days | Pending | US-004 |
 | US-006 | Consultation Notes | Must | 2 days | Pending | US-004, US-003 |
-| US-007 | Patient History | Should | 1 day | Pending | US-006 |
+| US-007 | Patient History | Should | 1 day | Done | US-006 |
 | US-008 | Dashboard | Should | 2 days | Pending | US-004, US-006 |
 | US-009 | Search | Could | 1 day | Pending | US-004 |
 | US-010 | PDF Export | Could | 1 day | Pending | US-006, US-007 |
