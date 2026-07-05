@@ -15,7 +15,7 @@ export function createClient() {
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options });
-          } catch (error) {
+          } catch {
             // Called from a Server Component — safe to ignore.
             // This can be safely removed if you set cookies in middleware or Server Actions.
           }
@@ -23,7 +23,7 @@ export function createClient() {
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: "", ...options });
-          } catch (error) {
+          } catch {
             // Called from a Server Component — safe to ignore.
             // This can be safely removed if you set cookies in middleware or Server Actions.
           }
