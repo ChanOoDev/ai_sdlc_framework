@@ -14,10 +14,13 @@ Phase 4: Development
 - US-003: Doctor Management ✅
 - US-004: Patient Management ✅
 - US-005: Patient Profile ✅
-  - Patient detail page at /dashboard/patients/[id]
-  - Shows demographics, contact, created_by, timestamps
-  - Edit button, back link, consultation history placeholder
-  - Patient list names link to detail page
+- US-006: Consultation Notes ✅
+  - Server actions: getConsultations, getConsultation, createConsultation, updateConsultation, deleteConsultation
+  - Consultation list page with patient/doctor names joined
+  - Create page with dropdown selectors, notes, diagnosis, prescription
+  - Edit page with pre-populated form
+  - Middleware guard: admin + doctor only for create/edit
+  - Doctor ownership verified on create
 
 ## In Progress
 
@@ -25,7 +28,6 @@ None
 
 ## Pending
 
-- US-006: Consultation Notes
 - US-007: Patient History
 - US-008: Dashboard
 - US-009: Search
