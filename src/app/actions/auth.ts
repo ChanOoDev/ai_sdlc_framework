@@ -33,7 +33,8 @@ export async function signup(formData: FormData) {
   const supabase = createClient();
 
   // 1. Sign up the user via Supabase Auth
-  const { data: authData, error: authError } = await supabase.auth.signUp({
+  // Profile is auto-created by the on_auth_user_created trigger in Supabase
+  const { error: authError } = await supabase.auth.signUp({
     email,
     password,
     options: {
