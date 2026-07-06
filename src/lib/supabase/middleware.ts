@@ -42,13 +42,9 @@ export async function updateSession(request: NextRequest) {
     (request.nextUrl.pathname.startsWith("/dashboard/users") ||
       request.nextUrl.pathname.startsWith("/dashboard/doctors"))
   ) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (profile?.role !== "admin") {
+    // Use JWT role claim instead of querying profiles (avoids RLS recursion)
+    const role = user.user_metadata?.role ?? user.app_metadata?.role;
+    if (role !== "admin") {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
@@ -59,13 +55,8 @@ export async function updateSession(request: NextRequest) {
     (request.nextUrl.pathname === "/dashboard/patients/new" ||
       /^\/dashboard\/patients\/[^/]+\/edit$/.test(request.nextUrl.pathname))
   ) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (profile?.role !== "admin" && profile?.role !== "receptionist") {
+    const role = user.user_metadata?.role ?? user.app_metadata?.role;
+    if (role !== "admin" && role !== "receptionist") {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
@@ -78,13 +69,8 @@ export async function updateSession(request: NextRequest) {
         request.nextUrl.pathname
       ))
   ) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (profile?.role !== "admin" && profile?.role !== "doctor") {
+    const role = user.user_metadata?.role ?? user.app_metadata?.role;
+    if (role !== "admin" && role !== "doctor") {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
