@@ -49,6 +49,12 @@ Phase 4: Development
   - Covers: prerequisites, clone, environment, Supabase, Claude Code infrastructure
   - Documents all 11 skills, 10 agents, 6 hooks, 14 commands
   - Includes troubleshooting, project structure, day-to-day workflow
+- US-009: Search ✅
+  - Server action: searchPatients (searches by name, email, phone with ILIKE)
+  - Debounced search input (300ms) on patient list page
+  - Search icon and loading spinner during search
+  - "No results" empty state with clear search button
+  - Results limited to 50 for performance
 
 ## In Progress
 
@@ -56,7 +62,6 @@ None
 
 ## Pending
 
-- US-009: Search
 - US-010: PDF Export
 
 ## Blockers
