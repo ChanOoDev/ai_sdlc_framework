@@ -13,16 +13,21 @@
 3. [Clone & Install](#3-clone--install)
 4. [Environment Setup](#4-environment-setup)
 5. [Supabase Setup](#5-supabase-setup)
-6. [Run the App](#6-run-the-app)
-7. [Claude Code Infrastructure](#7-claude-code-infrastructure)
-8. [Skills Reference](#8-skills-reference)
-9. [Agents Reference](#9-agents-reference)
-10. [Hooks Reference](#10-hooks-reference)
-11. [Commands Reference](#11-commands-reference)
-12. [MCP Servers](#12-mcp-servers)
-13. [Day-to-Day Workflow](#13-day-to-day-workflow)
-14. [Project Structure](#14-project-structure)
-15. [Troubleshooting](#15-troubleshooting)
+6. [GitHub CLI Setup](#6-github-cli-setup)
+7. [GitHub Repository Setup](#7-github-repository-setup)
+8. [GitHub Project Setup](#8-github-project-setup)
+9. [GitHub Actions CI/CD](#9-github-actions-cicd)
+10. [Vercel Deployment](#10-vercel-deployment)
+11. [Run the App](#11-run-the-app)
+12. [Claude Code Infrastructure](#12-claude-code-infrastructure)
+13. [Skills Reference](#13-skills-reference)
+14. [Agents Reference](#14-agents-reference)
+15. [Hooks Reference](#15-hooks-reference)
+16. [Commands Reference](#16-commands-reference)
+17. [MCP Servers](#17-mcp-servers)
+18. [Day-to-Day Workflow](#18-day-to-day-workflow)
+19. [Project Structure](#19-project-structure)
+20. [Troubleshooting](#20-troubleshooting)
 
 ---
 
@@ -136,7 +141,329 @@ After running migrations, verify Row Level Security is enabled:
 
 ---
 
-## 6. Run the App
+## 6. GitHub CLI Setup
+
+### 6.1 Install GitHub CLI
+
+```bash
+# Windows (winget)
+winget install GitHub.cli
+
+# macOS
+brew install gh
+
+# Linux (apt)
+sudo apt install gh
+```
+
+### 6.2 Authenticate
+
+```bash
+# Login to GitHub
+gh auth login
+
+# Follow the prompts:
+# ? What account? → GitHub.com
+# ? Preferred protocol? → HTTPS
+# ? Authenticate Git? → Yes
+# ? Login with web browser? → Yes
+```
+
+### 6.3 Verify
+
+```bash
+gh auth status
+# Should show: Logged in to github.com as <your-username>
+```
+
+---
+
+## 7. GitHub Repository Setup
+
+### 7.1 Create Repository
+
+```bash
+# Create a new repo on GitHub
+gh repo create ai_sdlc_framework --private --source=. --push
+
+# Or if repo already exists, just set the remote
+git remote add origin https://github.com/ChanOoDev/ai_sdlc_framework.git
+git push -u origin master
+```
+
+### 7.2 Configure Branch Protection
+
+Protect the `master` branch so all changes go through PRs:
+
+```bash
+# Enable branch protection via API
+gh api repos/{owner}/{repo}/branches/master/protection -X PUT -f '{
+  "required_status_checks": null,
+  "enforce_admins": false,
+  "required_pull_request_reviews": {
+    "required_approving_review_count": 0,
+    "dismiss_stale_reviews": false
+  },
+  "restrictions": null,
+  "allow_force_pushes": false,
+  "allow_deletions": false
+}'
+```
+
+Or manually:
+1. Go to **Settings** → **Branches**
+2. Click **Add branch protection rule**
+3. Branch name pattern: `master`
+4. Enable: **Require a pull request before merging**
+5. Save changes
+
+### 7.3 Create Issue Labels
+
+```bash
+# Create labels for the project
+gh label create "type: epic" --color "A2EEEF" --description "Major delivery item"
+gh label create "type: story" --color "7057FF" --description "User-facing story"
+gh label create "type: task" --color "008672" --description "Implementation task"
+gh label create "type: bug" --color "D73A4A" --description "Defect report"
+gh label create "status: backlog" --color "C5DEF5" --description "Not yet planned"
+gh label create "status: ready" --color "0E8A16" --description "Ready to start"
+gh label create "status: in-progress" --color "FBCA04" --description "Currently working"
+gh label create "status: in-review" --color "D4C5F9" --description "Under review"
+gh label create "status: qa" --color "F9D0C4" --description "QA testing"
+gh label create "status: blocked" --color "E11D48" --description "Blocked"
+gh label create "status: done" --color "0E8A16" --description "Completed"
+gh label create "priority: high" --color "B60205" --description "High priority"
+gh label create "priority: medium" --color "FBCA04" --description "Medium priority"
+gh label create "priority: low" --color "0E8A16" --description "Low priority"
+gh label create "area: frontend" --color "1D76DB" --description "Frontend work"
+gh label create "area: backend" --color "006B75" --description "Backend work"
+gh label create "area: database" --color "5319E7" --description "Database work"
+gh label create "area: devops" --color "D4C5F9" --description "DevOps work"
+gh label create "area: docs" --color "0075CA" --description "Documentation"
+```
+
+---
+
+## 8. GitHub Project Setup
+
+### 8.1 Create GitHub Project
+
+1. Go to https://github.com/projects
+2. Click **New project**
+3. Choose **Board** view
+4. Name: `Doctor Note MVP`
+5. Description: `Sprint board for Doctor Note MVP development`
+
+### 8.2 Configure Status Field
+
+The project uses a `Status` field with these options:
+
+| Status | Color | Description |
+|---|---|---|
+| Backlog | Gray | Not yet planned |
+| Ready | Blue | Ready to start |
+| In Progress | Yellow | Currently working |
+| In Review | Purple | Under review |
+| QA | Orange | QA testing |
+| Blocked | Red | Blocked |
+| Done | Green | Completed |
+
+### 8.3 Create Issues from Templates
+
+The project includes issue templates in `.github/ISSUE_TEMPLATE/`:
+
+```bash
+# Create issues from templates
+gh issue create --template user-story
+gh issue create --template epic
+gh issue create --template task
+gh issue create --template bug-report
+```
+
+### 8.4 Link Issues to Project
+
+```bash
+# Add issue to project
+gh project item-add {project-number} --owner {owner} --url {issue-url}
+```
+
+### 8.5 Update Issue Status
+
+```bash
+# Move issue to "In Progress"
+gh project item-edit --project-id {project-id} --id {item-id} --field-id {status-field-id} --single-select-option-id {in-progress-id}
+
+# Move issue to "Done"
+gh project item-edit --project-id {project-id} --id {item-id} --field-id {status-field-id} --single-select-option-id {done-id}
+```
+
+---
+
+## 9. GitHub Actions CI/CD
+
+### 9.1 Create CI Workflow
+
+Create `.github/workflows/ci.yml`:
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npm run typecheck
+
+      - name: ESLint
+        run: npm run lint
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+```
+
+### 9.2 Add Repository Secrets
+
+```bash
+# Add secrets to GitHub repo
+gh secret set NEXT_PUBLIC_SUPABASE_URL --body "https://your-project.supabase.co"
+gh secret set NEXT_PUBLIC_SUPABASE_ANON_KEY --body "your-anon-key"
+gh secret set SUPABASE_SERVICE_ROLE_KEY --body "your-service-role-key"
+```
+
+Or manually:
+1. Go to **Settings** → **Secrets and variables** → **Actions**
+2. Click **New repository secret**
+3. Add each secret
+
+### 9.3 Create Deploy Workflow (Vercel)
+
+Create `.github/workflows/deploy.yml`:
+
+```yaml
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+
+  # Allow manual deployment
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Pull Vercel environment
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to production
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+```
+
+### 9.4 Add Vercel Token Secret
+
+```bash
+# Get your Vercel token from https://vercel.com/account/tokens
+gh secret set VERCEL_TOKEN --body "your-vercel-token"
+```
+
+---
+
+## 10. Vercel Deployment
+
+### 10.1 Connect Repository to Vercel
+
+1. Go to https://vercel.com/new
+2. Import your GitHub repository
+3. Configure:
+   - **Framework Preset:** Next.js
+   - **Root Directory:** `./`
+   - **Build Command:** `npm run build`
+   - **Output Directory:** `.next`
+4. Click **Deploy**
+
+### 10.2 Set Environment Variables
+
+1. Go to your Vercel project → **Settings** → **Environment Variables**
+2. Add:
+
+| Variable | Value | Environment |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase URL | Production, Preview |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your anon key | Production, Preview |
+| `SUPABASE_SERVICE_ROLE_KEY` | Your service role key | Production, Preview |
+
+### 10.3 Configure Domains (Optional)
+
+1. Go to **Settings** → **Domains**
+2. Add your custom domain
+3. Update DNS records as instructed
+
+### 10.4 Deploy Previews
+
+Vercel automatically creates preview deployments for:
+- Every push to `master`
+- Every pull request
+
+### 10.5 Production Deployment
+
+Production deploys happen automatically when:
+- Code is merged to `master`
+- Or manually via GitHub Actions workflow
+
+---
+
+## 11. Run the App
 
 ```bash
 # Development server (http://localhost:3000)
@@ -159,7 +486,7 @@ Open http://localhost:3000 in your browser.
 
 ---
 
-## 7. Claude Code Infrastructure
+## 12. Claude Code Infrastructure
 
 The `.claude/` directory contains all AI configuration:
 
@@ -225,7 +552,7 @@ The `.claude/` directory contains all AI configuration:
 
 ---
 
-## 8. Skills Reference
+## 13. Skills Reference
 
 Skills provide domain knowledge that Claude uses automatically.
 
@@ -259,7 +586,7 @@ When you edit a file, Claude automatically loads the relevant skill. For example
 
 ---
 
-## 9. Agents Reference
+## 14. Agents Reference
 
 Agents are specialist AI roles that the orchestrator delegates work to.
 
@@ -282,7 +609,7 @@ Each agent returns structured output defined in `.claude/agents/SCHEMAS.md`. The
 
 ---
 
-## 10. Hooks Reference
+## 15. Hooks Reference
 
 Hooks run automatically after specific events.
 
@@ -332,7 +659,7 @@ Hooks are configured in `.claude/settings.json`:
 
 ---
 
-## 11. Commands Reference
+## 16. Commands Reference
 
 Type these in Claude Code to trigger workflows.
 
@@ -377,7 +704,7 @@ Type these in Claude Code to trigger workflows.
 
 ---
 
-## 12. MCP Servers
+## 17. MCP Servers
 
 MCP (Model Context Protocol) servers extend Claude's capabilities.
 
@@ -405,7 +732,7 @@ To add an MCP server, edit `.claude/settings.local.json`:
 
 ---
 
-## 13. Day-to-Day Workflow
+## 18. Day-to-Day Workflow
 
 ### Starting a New Task
 
@@ -462,7 +789,7 @@ The system enforces these quality gates:
 
 ---
 
-## 14. Project Structure
+## 19. Project Structure
 
 ```
 ai_software_company_template/
@@ -513,7 +840,7 @@ ai_software_company_template/
 
 ---
 
-## 15. Troubleshooting
+## 20. Troubleshooting
 
 ### "Module not found" errors
 
@@ -582,8 +909,10 @@ chmod +x .claude/hooks/*.sh
 
 ## Quick Start Checklist
 
+### Local Setup
 - [ ] Node.js 18+ installed
 - [ ] Claude Code installed (`npm install -g @anthropic-ai/claude-code`)
+- [ ] GitHub CLI installed (`gh --version`)
 - [ ] Repository cloned
 - [ ] `npm install` completed
 - [ ] `.env.local` created with Supabase credentials
@@ -592,6 +921,21 @@ chmod +x .claude/hooks/*.sh
 - [ ] Can access http://localhost:3000
 - [ ] Can sign up and log in
 - [ ] Claude Code opens with project context
+
+### GitHub Setup
+- [ ] GitHub CLI authenticated (`gh auth status`)
+- [ ] Repository created and pushed
+- [ ] Branch protection enabled on `master`
+- [ ] Issue labels created
+- [ ] GitHub Project board created
+- [ ] Repository secrets added (Supabase keys)
+
+### Vercel Setup
+- [ ] Vercel account created
+- [ ] Repository imported to Vercel
+- [ ] Environment variables set in Vercel
+- [ ] Vercel token added as GitHub secret
+- [ ] First deployment successful
 
 ---
 
