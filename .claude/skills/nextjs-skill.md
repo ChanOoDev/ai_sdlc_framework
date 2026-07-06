@@ -24,8 +24,7 @@ Does it use browser APIs?
 
 ```
 Is this a mutation (create/update/delete)?
-├─ Yes → Use Server Action
-│   └─ Form action → Server Action → revalidatePath/revalidateTag
+├─ Yes → Use Server Action (see backend-skill for patterns)
 └─ No → Is it static or dynamic?
     ├─ Static → fetch with { cache: 'force-cache' }
     ├─ Dynamic → fetch with { cache: 'no-store' } or dynamic = 'force-dynamic'
@@ -33,36 +32,6 @@ Is this a mutation (create/update/delete)?
 ```
 
 ## Patterns
-
-### Server Action Pattern
-
-```typescript
-// app/actions/patient.ts
-'use server'
-
-import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
-
-export async function createPatient(formData: FormData) {
-  const supabase = createClient()
-
-  const { data, error } = await supabase
-    .from('patients')
-    .insert({
-      name: formData.get('name') as string,
-      email: formData.get('email') as string,
-    })
-    .select()
-    .single()
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  revalidatePath('/patients')
-  return { data }
-}
-```
 
 ### Server Component with Data
 
@@ -89,20 +58,19 @@ export default async function PatientsPage() {
 }
 ```
 
-### Validation Pattern
+### Parallel Data Fetching
 
 ```typescript
-// lib/validations/patient.ts
-import { z } from 'zod'
+// Always prefer parallel for independent queries
+const [patients, doctors] = await Promise.all([
+  supabase.from('patients').select('*'),
+  supabase.from('doctors').select('*'),
+]);
 
-export const patientSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
-  email: z.string().email('Invalid email'),
-  phone: z.string().optional(),
-  date_of_birth: z.string().optional(),
-})
-
-export type PatientInput = z.infer<typeof patientSchema>
+// Sequential only when dependent
+const { data: { user } } = await supabase.auth.getUser();
+const { data: profile } = await supabase
+  .from('profiles').select('*').eq('id', user.id).single();
 ```
 
 ### Error Boundary Pattern
@@ -127,20 +95,75 @@ export default function Error({
 }
 ```
 
+### Dynamic Route Params
+
+```typescript
+// Next.js 14 — params is synchronous
+interface PageProps {
+  params: { id: string };
+}
+
+export default async function Page({ params }: PageProps) {
+  const { id } = params;
+  // ...
+}
+
+// Next.js 15+ — params is a Promise
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function Page({ params }: PageProps) {
+  const { id } = await params;
+  // ...
+}
+```
+
+### Route Groups
+```
+app/
+├── (auth)/           # Group: no URL segment
+│   ├── login/
+│   └── signup/
+├── (dashboard)/      # Group: shared layout
+│   ├── patients/
+│   └── doctors/
+```
+
+### Loading & Error States
+```typescript
+// app/dashboard/loading.tsx
+export default function Loading() {
+  return <div>Loading...</div>;
+}
+
+// app/dashboard/error.tsx
+"use client";
+export default function Error({ error, reset }) {
+  return <div>Error: {error.message} <button onClick={reset}>Retry</button></div>;
+}
+
+// app/dashboard/not-found.tsx
+export default function NotFound() {
+  return <div>Not found</div>;
+}
+```
+
 ## Anti-Patterns
 
 - ❌ Using `"use client"` unnecessarily (defaults to Server Components)
 - ❌ Fetching data in useEffect when it could be a Server Component
-- ❌ Exposing `SUPABASE_SERVICE_ROLE_KEY` to client components
 - ❌ Using `window` or other browser APIs in Server Components
 - ❌ Importing client-only libraries in Server Components without `"use client"`
+- ❌ Using `index` as key for dynamic lists
+- ❌ Creating new objects/functions in render without memoization
 
 ## Checklist
 
 - [ ] Server Components by default
 - [ ] `"use client"` only when needed
-- [ ] Server Actions for mutations
-- [ ] Validation server-side and client-side
-- [ ] No secrets in client components
+- [ ] Server Actions for mutations (see backend-skill)
+- [ ] Parallel data fetching with `Promise.all`
 - [ ] Error boundaries for each route group
 - [ ] Loading states for async components
+- [ ] Proper TypeScript types for props and data

@@ -25,6 +25,8 @@ You are a senior backend developer specializing in Next.js server-side, Supabase
 
 ## Core Rules
 
+> **For Server vs Client Components, see `nextjs-skill`.**
+
 ### 1. Always Authenticate First
 Every server action and data fetch must verify the user first:
 
@@ -101,21 +103,19 @@ if (data.doctor_id !== doctorRecord.id) {
 }
 ```
 
-## File Structure
+## File Structure (Backend Focus)
 
 ```
 src/
-├── app/
-│   └── actions/           # Server Actions
-│       ├── auth.ts        # Login, signup, logout
-│       ├── patients.ts    # Patient CRUD
-│       ├── doctors.ts     # Doctor CRUD
-│       └── consultations.ts
-├── lib/
-│   └── supabase/
-│       ├── server.ts      # Server-side client (cookies)
-│       ├── client.ts      # Browser client (localStorage)
-│       └── middleware.ts  # Auth middleware
+├── app/actions/           # Server Actions (mutations)
+│   ├── auth.ts            # Login, signup, logout
+│   ├── patients.ts        # Patient CRUD
+│   ├── doctors.ts         # Doctor CRUD
+│   └── consultations.ts
+├── lib/supabase/
+│   ├── server.ts          # Server-side client (cookies)
+│   ├── client.ts          # Browser client (localStorage)
+│   └── middleware.ts      # Auth middleware
 ├── middleware.ts           # Next.js middleware
 ├── types/
 │   └── database.ts        # Supabase generated types
