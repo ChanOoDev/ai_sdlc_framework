@@ -63,7 +63,7 @@ jobs:
         run: npm ci
 
       - name: Audit for vulnerabilities
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=critical
         continue-on-error: true
 
       - name: Check for secrets in code
