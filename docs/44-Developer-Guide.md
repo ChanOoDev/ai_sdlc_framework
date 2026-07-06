@@ -301,69 +301,70 @@ gh project item-edit --project-id {project-id} --id {item-id} --field-id {status
 
 ## 9. GitHub Actions CI/CD
 
-### 9.1 Create CI Workflow
+### 9.1 Workflow Overview
 
-Create `.github/workflows/ci.yml`:
-
-```yaml
-name: CI
-
-on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
-
-jobs:
-  lint-and-typecheck:
-    name: Lint & Typecheck
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: TypeScript check
-        run: npm run typecheck
-
-      - name: ESLint
-        run: npm run lint
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    needs: lint-and-typecheck
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+```
+┌─────────────────────────────────────────────────────────┐
+│  CI Workflow (ci.yml)                                   │
+│  Triggers: Push to master, Pull Requests                │
+│                                                         │
+│  ┌─────────────────┐  ┌─────────────────┐              │
+│  │ Lint & Typecheck│  │ Tests           │  (parallel)  │
+│  └────────┬────────┘  └────────┬────────┘              │
+│           │                    │                        │
+│  ┌────────┴────────────────────┴────────┐              │
+│  │ Security Scan                         │              │
+│  │ (npm audit + secret scan)             │              │
+│  └────────────────────┬─────────────────┘              │
+│                       │                                 │
+│  ┌────────────────────┴─────────────────┐              │
+│  │ Build                                 │              │
+│  └──────────────────────────────────────┘              │
+└─────────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────┐
+│  Deploy Workflow (deploy.yml)                           │
+│  Triggers: Push to master                               │
+│                                                         │
+│  Step 1: Deploy Preview (staging)                       │
+│  Step 2: ⏸️  Approval Gate (manual)                     │
+│  Step 3: Deploy Production                              │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### 9.2 Add Repository Secrets
+### 9.2 CI Workflow (`.github/workflows/ci.yml`)
+
+Runs automatically on every push and pull request:
+
+| Job | What It Does | Runs On |
+|---|---|---|
+| `lint-and-typecheck` | TypeScript check + ESLint | ubuntu-latest |
+| `test` | Vitest test suite | ubuntu-latest |
+| `security` | npm audit + secret scan | ubuntu-latest |
+| `build` | Next.js production build | ubuntu-latest |
+
+**Jobs run in parallel** (lint, test, security), then **build runs after all pass**.
+
+### 9.3 Deploy Workflow (`.github/workflows/deploy.yml`)
+
+Runs after CI passes on push to master:
+
+| Step | What It Does | Requires |
+|---|---|---|
+| `ci` | Runs CI workflow | — |
+| `deploy-preview` | Deploys to Vercel preview | CI passes |
+| `approve` | Waits for manual approval | Preview deployed |
+| `deploy-production` | Deploys to Vercel production | Approval received |
+
+### 9.4 Add Repository Secrets
 
 ```bash
 # Add secrets to GitHub repo
 gh secret set NEXT_PUBLIC_SUPABASE_URL --body "https://your-project.supabase.co"
 gh secret set NEXT_PUBLIC_SUPABASE_ANON_KEY --body "your-anon-key"
 gh secret set SUPABASE_SERVICE_ROLE_KEY --body "your-service-role-key"
+gh secret set VERCEL_TOKEN --body "your-vercel-token"
 ```
 
 Or manually:
@@ -371,51 +372,16 @@ Or manually:
 2. Click **New repository secret**
 3. Add each secret
 
-### 9.3 Create Deploy Workflow (Vercel)
+### 9.5 Setup GitHub Environment (Required for Approval Gate)
 
-Create `.github/workflows/deploy.yml`:
+1. Go to **Settings** → **Environments**
+2. Click **New environment**
+3. Name: `production`
+4. Enable **Required reviewers**
+5. Add yourself as reviewer
+6. Save
 
-```yaml
-name: Deploy
-
-on:
-  push:
-    branches: [master]
-
-  # Allow manual deployment
-  workflow_dispatch:
-
-jobs:
-  deploy:
-    name: Deploy to Vercel
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Install Vercel CLI
-        run: npm install -g vercel
-
-      - name: Pull Vercel environment
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy to production
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-```
-
-### 9.4 Add Vercel Token Secret
-
-```bash
-# Get your Vercel token from https://vercel.com/account/tokens
-gh secret set VERCEL_TOKEN --body "your-vercel-token"
-```
+**Without this setup, the deploy workflow will fail at the approval step.**
 
 ---
 
@@ -443,23 +409,60 @@ gh secret set VERCEL_TOKEN --body "your-vercel-token"
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your anon key | Production, Preview |
 | `SUPABASE_SERVICE_ROLE_KEY` | Your service role key | Production, Preview |
 
-### 10.3 Configure Domains (Optional)
+### 10.3 Get Vercel Token (for GitHub Actions)
+
+1. Go to https://vercel.com/account/tokens
+2. Click **Create Token**
+3. Name: `github-actions`
+4. Copy the token
+5. Add to GitHub: `gh secret set VERCEL_TOKEN --body "your-token"`
+
+### 10.4 Configure Domains (Optional)
 
 1. Go to **Settings** → **Domains**
 2. Add your custom domain
 3. Update DNS records as instructed
 
-### 10.4 Deploy Previews
+### 10.5 Deployment Flow
 
-Vercel automatically creates preview deployments for:
-- Every push to `master`
-- Every pull request
+```
+Push to master
+    │
+    ▼
+┌─────────────────────┐
+│ CI passes           │
+│ (lint+test+sec+build)│
+└─────────┬───────────┘
+          │
+          ▼
+┌─────────────────────┐
+│ Preview deployed    │ ← You can review here
+│ (staging URL)       │
+└─────────┬───────────┘
+          │
+          ▼
+┌─────────────────────┐
+│ ⏸️  Approval needed  │ ← Approve in GitHub UI
+└─────────┬───────────┘
+          │
+          ▼
+┌─────────────────────┐
+│ Production live     │
+│ (your-domain.vercel.app)│
+└─────────────────────┘
+```
 
-### 10.5 Production Deployment
+### 10.6 Manual Deployment
 
-Production deploys happen automatically when:
-- Code is merged to `master`
-- Or manually via GitHub Actions workflow
+To deploy manually without waiting for approval:
+
+```bash
+# Deploy to preview
+vercel
+
+# Deploy to production
+vercel --prod
+```
 
 ---
 
