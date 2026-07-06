@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getPatient } from "@/app/actions/patients";
 import { getConsultationsByPatient } from "@/app/actions/consultations";
 import { createClient } from "@/lib/supabase/server";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";

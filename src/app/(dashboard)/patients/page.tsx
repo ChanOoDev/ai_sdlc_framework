@@ -5,7 +5,6 @@ import Link from "next/link";
 import { getPatients, deletePatient } from "@/app/actions/patients";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,

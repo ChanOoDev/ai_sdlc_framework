@@ -16,7 +16,6 @@ export default async function DashboardPage() {
     .single();
 
   const userName = profile?.full_name?.split(" ")[0] ?? "there";
-  const role = profile?.role ?? "receptionist";
 
   // Fetch counts in parallel
   const [
