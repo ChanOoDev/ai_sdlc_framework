@@ -37,6 +37,42 @@ export async function getPatients() {
 }
 
 /**
+ * Search patients by name, email, or phone.
+ * RLS filters by role.
+ */
+export async function searchPatients(query: string) {
+  const supabase = createClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Not authenticated." };
+  }
+
+  if (!query || query.trim().length === 0) {
+    return { data: [] };
+  }
+
+  const searchTerm = query.trim();
+
+  const { data, error } = await supabase
+    .from("patients")
+    .select("id, name, email, phone, date_of_birth, address, created_by, created_at, updated_at")
+    .or(`name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { data };
+}
+
+/**
  * Fetch a single patient by ID.
  */
 export async function getPatient(id: string) {
