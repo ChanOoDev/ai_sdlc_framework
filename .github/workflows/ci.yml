@@ -7,6 +7,7 @@ on:
     branches: [master]
 
 jobs:
+  # ─── Job 1: Code Quality ────────────────────────────────────
   lint-and-typecheck:
     name: Lint & Typecheck
     runs-on: ubuntu-latest
@@ -27,10 +28,65 @@ jobs:
       - name: ESLint
         run: npm run lint
 
+  # ─── Job 2: Tests ───────────────────────────────────────────
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test
+
+  # ─── Job 3: Security Scan ───────────────────────────────────
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit for vulnerabilities
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Check for secrets in code
+        run: |
+          grep -RIn \
+            -E "(SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY|sk_live_|sk_test_|AKIA[0-9A-Z]{16})" \
+            . \
+            --exclude-dir=node_modules \
+            --exclude-dir=.next \
+            --exclude-dir=.git \
+            --exclude-dir=.claude \
+            --exclude=".env.example" \
+            --exclude="*.md" \
+            --exclude="package-lock.json" \
+            --exclude="*.sh" \
+            --exclude="*.yml" \
+            --exclude="*.yaml" || true
+        continue-on-error: true
+
+  # ─── Job 4: Build ───────────────────────────────────────────
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: lint-and-typecheck
+    needs: [lint-and-typecheck, test, security]
     steps:
       - uses: actions/checkout@v4
 

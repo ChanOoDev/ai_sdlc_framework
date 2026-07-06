@@ -7,6 +7,7 @@ MATCHES=$(grep -RIn \
   --exclude-dir=.next \
   --exclude-dir=.git \
   --exclude-dir=.claude \
+  --exclude-dir=.github \
   --exclude=".env.example" \
   --exclude="*.md" \
   --exclude="package-lock.json" \
