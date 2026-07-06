@@ -48,20 +48,7 @@ export async function signup(formData: FormData) {
     return { error: authError.message };
   }
 
-  // 2. Create profile record server-side
-  if (authData.user) {
-    const { error: profileError } = await supabase.from("profiles").insert({
-      id: authData.user.id,
-      email,
-      full_name: fullName,
-      role,
-    });
-
-    if (profileError) {
-      return { error: profileError.message };
-    }
-  }
-
+  // Profile is auto-created by the on_auth_user_created trigger in Supabase
   redirect("/dashboard");
 }
 
