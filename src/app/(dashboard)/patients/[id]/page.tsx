@@ -7,6 +7,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import ConsultationPDF from "./ConsultationPDF";
 
 interface PatientDetailPageProps {
   params: { id: string };
@@ -46,6 +47,23 @@ export default async function PatientDetailPage({ params }: PatientDetailPagePro
             <Link href="/dashboard/patients" className={buttonVariants({ variant: "outline" })}>
               ← Back
             </Link>
+            <ConsultationPDF
+              patient={{
+                name: patient.name,
+                email: patient.email,
+                phone: patient.phone,
+                date_of_birth: patient.date_of_birth,
+                address: patient.address,
+              }}
+              consultations={consultations.map((c) => ({
+                id: c.id,
+                created_at: c.created_at,
+                doctor_name: c.doctor_name,
+                diagnosis: c.diagnosis,
+                prescription: c.prescription,
+                notes: c.notes,
+              }))}
+            />
             <Link href={`/dashboard/patients/${patient.id}/edit`} className={buttonVariants()}>
               Edit Patient
             </Link>
