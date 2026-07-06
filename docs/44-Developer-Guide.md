@@ -401,35 +401,71 @@ You need **2 environments** for the approval flow:
 
 ## 10. Vercel Deployment
 
-### 10.1 Connect Repository to Vercel
+### 10.1 Install Vercel CLI
 
-1. Go to https://vercel.com/new
-2. Import your GitHub repository
-3. Configure:
-   - **Framework Preset:** Next.js
-   - **Root Directory:** `./`
-   - **Build Command:** `npm run build`
-   - **Output Directory:** `.next`
-4. Click **Deploy**
+```bash
+npm install -g vercel
+```
 
-### 10.2 Set Environment Variables
+### 10.2 Login to Vercel
 
-1. Go to your Vercel project → **Settings** → **Environment Variables**
-2. Add:
+```bash
+vercel login
+```
 
-| Variable | Value | Environment |
-|---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase URL | Production, Preview |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your anon key | Production, Preview |
-| `SUPABASE_SERVICE_ROLE_KEY` | Your service role key | Production, Preview |
+This opens a browser for authentication.
 
-### 10.3 Get Vercel Token (for GitHub Actions)
+### 10.3 Link Project to Vercel
+
+```bash
+vercel link --yes
+```
+
+This creates a Vercel project linked to your local directory.
+
+### 10.4 Add Environment Variables
+
+```bash
+# Get these from Supabase Dashboard → Settings → API
+vercel env add NEXT_PUBLIC_SUPABASE_URL production --value "https://your-project.supabase.co"
+vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production --value "your-anon-key"
+vercel env add SUPABASE_SERVICE_ROLE_KEY production --value "your-service-role-key"
+```
+
+Verify all variables are set:
+
+```bash
+vercel env ls
+```
+
+### 10.5 Connect GitHub Repository
+
+1. Go to https://vercel.com/your-account/your-project/settings/git
+2. Click **Connect Repository**
+3. Select your GitHub repository
+4. Click **Connect**
+
+### 10.6 Get Vercel Token (for GitHub Actions)
 
 1. Go to https://vercel.com/account/tokens
 2. Click **Create Token**
 3. Name: `github-actions`
 4. Copy the token
-5. Add to GitHub: `gh secret set VERCEL_TOKEN --body "your-token"`
+5. Add to GitHub:
+
+```bash
+gh secret set VERCEL_TOKEN --body "your-vercel-token"
+```
+
+### 10.7 Verify Vercel Setup
+
+```bash
+# List projects
+vercel project ls
+
+# List environment variables
+vercel env ls
+```
 
 ### 10.4 Configure Domains (Optional)
 
