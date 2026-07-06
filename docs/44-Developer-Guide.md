@@ -305,8 +305,7 @@ gh project item-edit --project-id {project-id} --id {item-id} --field-id {status
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  CI Workflow (ci.yml)                                   │
-│  Triggers: Push to master, Pull Requests                │
+│  Pull Request                                           │
 │                                                         │
 │  ┌─────────────────┐  ┌─────────────────┐              │
 │  │ Lint & Typecheck│  │ Tests           │  (parallel)  │
@@ -322,20 +321,22 @@ gh project item-edit --project-id {project-id} --id {item-id} --field-id {status
 │  └──────────────────────────────────────┘              │
 └─────────────────────────────────────────────────────────┘
                         │
-                        ▼
+                        ▼ (merge PR)
 ┌─────────────────────────────────────────────────────────┐
 │  Deploy Workflow (deploy.yml)                           │
 │  Triggers: Push to master                               │
 │                                                         │
-│  Step 1: Deploy Preview (staging)                       │
-│  Step 2: ⏸️  Approval Gate (manual)                     │
-│  Step 3: Deploy Production                              │
+│  Step 1: CI (lint + test + security + build)            │
+│  Step 2: Deploy Preview (staging)                       │
+│  Step 3: ⏸️  Approval Gate (manual)                     │
+│  Step 4: UAT Verification (manual)                      │
+│  Step 5: Deploy Production                              │
 └─────────────────────────────────────────────────────────┘
 ```
 
 ### 9.2 CI Workflow (`.github/workflows/ci.yml`)
 
-Runs automatically on every push and pull request:
+Runs automatically on **pull requests only** (not on push to master):
 
 | Job | What It Does | Runs On |
 |---|---|---|
@@ -348,14 +349,15 @@ Runs automatically on every push and pull request:
 
 ### 9.3 Deploy Workflow (`.github/workflows/deploy.yml`)
 
-Runs after CI passes on push to master:
+Runs on push to master (after PR is merged):
 
 | Step | What It Does | Requires |
 |---|---|---|
 | `ci` | Runs CI workflow | — |
 | `deploy-preview` | Deploys to Vercel preview | CI passes |
 | `approve` | Waits for manual approval | Preview deployed |
-| `deploy-production` | Deploys to Vercel production | Approval received |
+| `uat` | UAT verification | Approval received |
+| `deploy-production` | Deploys to Vercel production | UAT passed |
 
 ### 9.4 Add Repository Secrets
 
@@ -372,16 +374,28 @@ Or manually:
 2. Click **New repository secret**
 3. Add each secret
 
-### 9.5 Setup GitHub Environment (Required for Approval Gate)
+### 9.5 Setup GitHub Environments (Required)
 
-1. Go to **Settings** → **Environments**
+You need **2 environments** for the approval flow:
+
+#### Production Environment
+
+1. Go to https://github.com/ChanOoDev/ai_sdlc_framework/settings/environments
 2. Click **New environment**
 3. Name: `production`
 4. Enable **Required reviewers**
 5. Add yourself as reviewer
 6. Save
 
-**Without this setup, the deploy workflow will fail at the approval step.**
+#### UAT Environment
+
+1. Click **New environment**
+2. Name: `uat`
+3. Enable **Required reviewers**
+4. Add yourself as reviewer
+5. Save
+
+**Without these setups, the deploy workflow will fail at the approval/UAT steps.**
 
 ---
 
@@ -426,23 +440,33 @@ Or manually:
 ### 10.5 Deployment Flow
 
 ```
-Push to master
+Create Pull Request
     │
     ▼
 ┌─────────────────────┐
-│ CI passes           │
+│ CI runs             │
 │ (lint+test+sec+build)│
+└─────────┬───────────┘
+          │ ✅ Pass
+          ▼
+┌─────────────────────┐
+│ Merge PR to master  │
 └─────────┬───────────┘
           │
           ▼
 ┌─────────────────────┐
-│ Preview deployed    │ ← You can review here
+│ Deploy Preview      │ ← Review staging
 │ (staging URL)       │
 └─────────┬───────────┘
           │
           ▼
 ┌─────────────────────┐
 │ ⏸️  Approval needed  │ ← Approve in GitHub UI
+└─────────┬───────────┘
+          │ ✅ Approved
+          ▼
+┌─────────────────────┐
+│ ✅ UAT passed       │ ← Verify in GitHub UI
 └─────────┬───────────┘
           │
           ▼
