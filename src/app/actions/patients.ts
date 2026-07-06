@@ -156,6 +156,7 @@ export async function createPatient(
   }
 
   revalidatePath("/dashboard/patients");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -242,6 +243,7 @@ export async function updatePatient(id: string, data: PatientUpdate) {
   }
 
   revalidatePath("/dashboard/patients");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -274,5 +276,6 @@ export async function deletePatient(id: string) {
   }
 
   revalidatePath("/dashboard/patients");
+  revalidatePath("/dashboard");
   return { success: true };
 }

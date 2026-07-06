@@ -59,7 +59,7 @@ export default function NavBar({ userName, role }: NavBarProps) {
     .slice(0, 2);
 
   return (
-    <nav className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-lg">
+    <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-lg">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:block focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:text-primary-foreground"

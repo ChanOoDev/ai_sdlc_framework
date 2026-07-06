@@ -26,3 +26,4 @@ Plan → Implement → Review → QA → Fix → Regression → Release Check �
 - No release before QA approval.
 - No deployment before Release Manager GO.
 - No Critical or High defects may remain before release.
+

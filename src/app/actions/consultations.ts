@@ -224,6 +224,7 @@ export async function createConsultation(
 
   revalidatePath("/dashboard/consultations");
   revalidatePath(`/dashboard/patients/${data.patient_id}`);
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -300,6 +301,7 @@ export async function updateConsultation(id: string, data: ConsultationUpdate) {
   if (existing?.patient_id) {
     revalidatePath(`/dashboard/patients/${existing.patient_id}`);
   }
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -342,6 +344,7 @@ export async function deleteConsultation(id: string) {
   if (existing?.patient_id) {
     revalidatePath(`/dashboard/patients/${existing.patient_id}`);
   }
+  revalidatePath("/dashboard");
   return { success: true };
 }
 

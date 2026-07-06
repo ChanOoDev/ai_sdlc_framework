@@ -35,6 +35,20 @@ Phase 4: Development
   - Clickable stats cards navigate to respective pages
   - Recent consultations list with patient/doctor names
   - Empty state with link to create first consultation
+- Codebase Review & Fixes ✅
+  - Fixed hardcoded colors in consultation pages (bg-white, border-gray-300 → theme variables)
+  - Refactored consultation forms to use shadcn components (Select, Textarea, Button, Label, Card)
+  - Added patient_id query parameter support in new consultation page
+  - Fixed dashboard layout theme color (bg-gray-50 → bg-background)
+  - Fixed NavBar theme color (bg-white/80 → bg-background/80)
+  - Added revalidatePath("/dashboard") to all patient/consultation/doctor actions
+  - Installed missing shadcn textarea component
+  - Fixed Select onValueChange type compatibility (string | null)
+- Developer Guide ✅
+  - Complete from-scratch setup guide for junior developers
+  - Covers: prerequisites, clone, environment, Supabase, Claude Code infrastructure
+  - Documents all 11 skills, 10 agents, 6 hooks, 14 commands
+  - Includes troubleshooting, project structure, day-to-day workflow
 
 ## In Progress
 

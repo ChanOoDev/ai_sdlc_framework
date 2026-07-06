@@ -109,6 +109,7 @@ export async function createDoctor(data: Omit<DoctorInsert, "id" | "created_at">
   }
 
   revalidatePath("/dashboard/doctors");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -163,6 +164,7 @@ export async function updateDoctor(id: string, data: DoctorUpdate) {
   }
 
   revalidatePath("/dashboard/doctors");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -195,5 +197,6 @@ export async function deleteDoctor(id: string) {
   }
 
   revalidatePath("/dashboard/doctors");
+  revalidatePath("/dashboard");
   return { success: true };
 }

@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateConsultation } from "@/app/actions/consultations";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 
 interface EditConsultationFormProps {
   consultationId: string;
@@ -48,99 +53,84 @@ export default function EditConsultationForm({
   }
 
   return (
-    <>
+    <div className="animate-fade-in">
       {/* Read-only context */}
-      <div className="mb-4 max-w-lg rounded-lg border bg-gray-50 p-4">
-        <div className="text-sm text-gray-600">
-          <span className="font-medium">Patient:</span> {patientName}
-        </div>
-        <div className="text-sm text-gray-600">
-          <span className="font-medium">Doctor:</span> {doctorName}
-        </div>
-      </div>
+      <Card className="mb-4 max-w-lg">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4 text-sm">
+            <div>
+              <Badge variant="secondary" className="mb-1">Patient</Badge>
+              <p className="font-medium text-foreground">{patientName}</p>
+            </div>
+            <div>
+              <Badge variant="secondary" className="mb-1">Doctor</Badge>
+              <p className="font-medium text-foreground">{doctorName}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="mb-4 rounded-md bg-destructive/10 p-4">
+          <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
 
-      <form
-        onSubmit={(e) => void handleSubmit(e)}
-        className="max-w-lg rounded-lg border bg-white p-6 shadow-sm"
-      >
-        <div className="mb-4">
-          <label
-            htmlFor="notes"
-            className="mb-1 block text-sm font-medium text-gray-700"
-          >
-            Notes *
-          </label>
-          <textarea
-            id="notes"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            required
-            maxLength={10000}
-            rows={6}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-            placeholder="Enter consultation notes..."
-          />
-        </div>
+      <Card className="max-w-lg">
+        <CardContent className="p-6">
+          <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes *</Label>
+              <Textarea
+                id="notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                required
+                maxLength={10000}
+                rows={6}
+                placeholder="Enter consultation notes..."
+              />
+            </div>
 
-        <div className="mb-4">
-          <label
-            htmlFor="diagnosis"
-            className="mb-1 block text-sm font-medium text-gray-700"
-          >
-            Diagnosis
-          </label>
-          <textarea
-            id="diagnosis"
-            value={diagnosis}
-            onChange={(e) => setDiagnosis(e.target.value)}
-            maxLength={5000}
-            rows={3}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-            placeholder="Enter diagnosis (optional)"
-          />
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="diagnosis">Diagnosis</Label>
+              <Textarea
+                id="diagnosis"
+                value={diagnosis}
+                onChange={(e) => setDiagnosis(e.target.value)}
+                maxLength={5000}
+                rows={3}
+                placeholder="Enter diagnosis (optional)"
+              />
+            </div>
 
-        <div className="mb-6">
-          <label
-            htmlFor="prescription"
-            className="mb-1 block text-sm font-medium text-gray-700"
-          >
-            Prescription
-          </label>
-          <textarea
-            id="prescription"
-            value={prescription}
-            onChange={(e) => setPrescription(e.target.value)}
-            maxLength={5000}
-            rows={3}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-            placeholder="Enter prescription (optional)"
-          />
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="prescription">Prescription</Label>
+              <Textarea
+                id="prescription"
+                value={prescription}
+                onChange={(e) => setPrescription(e.target.value)}
+                maxLength={5000}
+                rows={3}
+                placeholder="Enter prescription (optional)"
+              />
+            </div>
 
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            disabled={submitting}
-            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {submitting ? "Saving..." : "Save Changes"}
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push("/dashboard/consultations")}
-            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </>
+            <div className="flex gap-2 pt-2">
+              <Button type="submit" disabled={submitting}>
+                {submitting ? "Saving..." : "Save Changes"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.push("/dashboard/consultations")}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
