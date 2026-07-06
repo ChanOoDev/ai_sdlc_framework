@@ -36,13 +36,11 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Protect /dashboard/users and /dashboard/doctors to admin only
+  // Protect /dashboard/users to admin only
   if (
     user &&
-    (request.nextUrl.pathname.startsWith("/dashboard/users") ||
-      request.nextUrl.pathname.startsWith("/dashboard/doctors"))
+    request.nextUrl.pathname.startsWith("/dashboard/users")
   ) {
-    // Use JWT role claim instead of querying profiles (avoids RLS recursion)
     const role = user.user_metadata?.role ?? user.app_metadata?.role;
     if (role !== "admin") {
       return NextResponse.redirect(new URL("/dashboard", request.url));
